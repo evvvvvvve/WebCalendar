@@ -1,0 +1,17 @@
+.env
+
+# appsettings（敏感）
+appsettings.json
+appsettings.Development.json
+
+# 編譯輸出
+bin/
+obj/
+
+# VS 設定
+.vs/
+*.user
+
+Properties/
+wwwroot/
+Reserve2.csproj.user

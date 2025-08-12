@@ -1,0 +1,70 @@
+﻿@page "/EditAppointmentPage"
+
+@using Radzen
+@using Radzen.Blazor
+@using WebCalendar.Components
+@using WebCalendar.Model
+@using WebCalendar.Service
+@inject DialogService DialogService
+@inject AppointmentService ReserveService
+
+<RadzenTemplateForm TItem="Appointment" Data="@model" Submit=@OnSubmit>
+    <RadzenStack Gap="1rem">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+            <RadzenLabel Text="Title" Style="width: 6rem;" />
+            <RadzenTextBox @bind-Value="@model.Text" Name="Text" Style="width: 12rem;" />
+            <RadzenRequiredValidator Component="Text" Text="Title is required" />
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+            <RadzenLabel Text="Start" Style="width: 6rem;" />
+            <RadzenDatePicker @bind-Value="@model.Start" Name="Start" ShowTime="true" Style="width: 12rem;" />
+            <RadzenRequiredValidator Component="Start" Text="Start is required" />
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+            <RadzenLabel Text="End" Style="width: 6rem;" />
+            <RadzenDatePicker Name="End" @bind-Value="@model.End" ShowTime="true" Style="width: 12rem;" />
+            <RadzenRequiredValidator Component="End" Text="End is required" />
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+            @* <RadzenButton Text="刪除" Click="@ConfirmDelete" Style="padding:0;width:80px;" class="rz-border-radius-10 rz-shadow-20;" /> *@
+            <RadzenButton Text="刪除" Click="@ConfirmDelete"/>
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" />
+        </RadzenStack>
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter]
+    public Appointment Appointment { get; set; }
+
+    // [Inject]
+    // private ReserveService ReserveService { get; set; }
+
+    Appointment model = new Appointment();
+
+    protected override void OnParametersSet()
+    {
+        model = Appointment;
+    }
+
+    async void OnSubmit(Appointment model)
+    {
+        await ReserveService.EditAppointments(model);
+
+        // DialogService.Close(model);
+        DialogService.Close("Edit");
+    }
+
+    #region OpenModal(新增、修改開窗及資料取得)
+    protected async Task ConfirmDelete()
+    {
+        var result = await DialogService.Confirm("確定要刪除嗎？", "提醒", new ConfirmOptions { OkButtonText = "確定", CancelButtonText = "取消" });
+        if (result.HasValue && result.Value)
+        {
+            // 執行刪除邏輯
+            await ReserveService.DeleteAppointments(model);
+            DialogService.Close("Delete");
+        }
+    }
+    #endregion
+}
